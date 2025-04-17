@@ -2,110 +2,264 @@
 
 {% block head %}
 <title>Upload Files - File Transfer App</title>
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .upload-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .upload-header {
+        background-color: var(--bs-primary);
+        color: white;
+        border-radius: 10px 10px 0 0;
+        padding: 1.5rem;
+    }
+    .upload-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .drop-area {
+        border: 2px dashed var(--bs-border-color);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .drop-area:hover, .drop-area.dragover {
+        border-color: var(--bs-primary);
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
+    .drop-icon {
+        font-size: 3rem;
+        color: var(--bs-primary);
+        margin-bottom: 1rem;
+    }
+    .file-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .upload-btn {
+        font-weight: 500;
+        padding: 0.75rem 2rem;
+    }
+    .server-info {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 1.25rem;
+    }
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bs-primary);
+        color: white;
+        border-radius: 50%;
+        margin-right: 1rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4><i class="fas fa-upload me-2"></i>Upload Files</h4>
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <h5 class="card-title">Web Upload</h5>
-                        <p class="card-text">Upload files directly through your web browser:</p>
-                        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
-                            <div class="mb-3">
-                                <label for="formFile" class="form-label">Choose a file</label>
-                                <input class="form-control" type="file" id="formFile" name="file">
-                            </div>
-                            <div class="progress mb-3 d-none" id="uploadProgress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary" id="uploadButton">
-                                    <i class="fas fa-upload me-2"></i>Upload File
-                                </button>
-                            </div>
-                        </form>
+<div class="upload-container">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold">
+            <i class="fas fa-upload me-2"></i>Upload Files
+        </h1>
+        <p class="lead">Share your files quickly and securely</p>
+    </div>
+
+    <div class="card upload-card mb-4">
+        <div class="card-body p-4">
+            <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="position-relative drop-area mb-4">
+                    <div class="drop-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4 class="mb-2">Drag & Drop Files Here</h4>
+                    <p class="text-muted mb-3">Or click to browse your files</p>
+                    <input type="file" class="file-input" id="formFile" name="file">
+                </div>
+                
+                <div id="filePreview" class="d-none mb-4">
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-file-alt me-3 fs-4"></i>
+                        <div class="file-info flex-grow-1">
+                            <h6 class="mb-0" id="fileName">filename.ext</h6>
+                            <small class="text-muted" id="fileSize">0 KB</small>
+                        </div>
+                        <button type="button" class="btn-close" id="removeFile"></button>
                     </div>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-12">
-                        <h5 class="card-title">TCP Socket Upload</h5>
-                        <p class="card-text">You can also upload files using a TCP client by connecting to the server:</p>
-                        <div class="card bg-dark">
-                            <div class="card-body">
-                                <h6 class="text-white">Server Information:</h6>
-                                <p class="text-light mb-2"><strong>Host:</strong> <code id="serverHost">{{ request.host.split(':')[0] }}</code></p>
-                                <p class="text-light mb-2"><strong>Port:</strong> <code>8000</code></p>
-                                <p class="text-light">Use the following command format to upload a file:</p>
-                                <pre class="bg-secondary p-2 text-white"><code>UPLOAD filename filesize</code></pre>
-                                <button class="btn btn-sm btn-outline-info mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#clientExample">
-                                    <i class="fas fa-code me-1"></i>Example Python Client Code
-                                </button>
-                                <div class="collapse mt-2" id="clientExample">
-                                    <div class="card card-body bg-secondary">
-<pre><code class="text-white">import socket
-import os
-
-def upload_file(host, port, filepath):
-    # Create socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+                <div class="progress mb-3 d-none" id="uploadProgress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg upload-btn" id="uploadButton" disabled>
+                        <i class="fas fa-upload me-2"></i>Upload File
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
-    # Read welcome message
-    response = s.recv(1024).decode()
-    print(f"Server: {response}")
-    
-    # Get file info
-    filename = os.path.basename(filepath)
-    filesize = os.path.getsize(filepath)
-    
-    # Send upload command
-    s.sendall(f"UPLOAD {filename} {filesize}\n".encode())
-    
-    # Wait for server to be ready
-    response = s.recv(1024).decode()
-    if response.strip() == "READY":
-        # Send file data
-        with open(filepath, 'rb') as f:
-            data = f.read()
-            s.sendall(data)
-        
-        # Get completion message
-        response = s.recv(1024).decode()
-        print(f"Server: {response}")
-    else:
-        print(f"Error: {response}")
-    
-    s.close()
-
-# Example usage
-upload_file("localhost", 8000, "example.txt")
-</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <h4 class="card-title mb-3">
+                <i class="fas fa-server me-2"></i>Server Connection Information
+            </h4>
+            <p class="card-text mb-4">This application supports TCP socket connections for programmatic file transfers:</p>
+            
+            <div class="server-info mb-3">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Server Host</h5>
+                        <code>{{ request.host.split(':')[0] }}</code>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Server Port</h5>
+                        <code>8000</code>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Upload Command Format</h5>
+                        <code>UPLOAD filename filesize</code>
                     </div>
                 </div>
             </div>
+            
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                For more information about programmatic file transfers, please contact the system administrator.
+            </div>
         </div>
+    </div>
+    
+    <div class="text-center">
+        <a href="{{ url_for('file_manager_page') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-folder-open me-2"></i>Go to File Manager
+        </a>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    // File upload form handling
+    const dropArea = document.querySelector('.drop-area');
+    const fileInput = document.getElementById('formFile');
+    const uploadButton = document.getElementById('uploadButton');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFile');
+    
+    // Format file size
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+    
+    // Display file info
+    function showFileInfo(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatBytes(file.size);
+        filePreview.classList.remove('d-none');
+        uploadButton.disabled = false;
+    }
+    
+    // Clear file info
+    function clearFileInfo() {
+        fileInput.value = '';
+        filePreview.classList.add('d-none');
+        uploadButton.disabled = true;
+    }
+    
+    // Handle drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('dragover');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('dragover');
+        }, false);
+    });
+    
+    // Handle file drop
+    dropArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileInfo(files[0]);
+        }
+    }, false);
+    
+    // Handle file selection
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            showFileInfo(fileInput.files[0]);
+        } else {
+            clearFileInfo();
+        }
+    });
+    
+    // Remove file
+    removeFileBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clearFileInfo();
+    });
+    
+    // Form submission
     document.getElementById('uploadForm').addEventListener('submit', function(e) {
-        const fileInput = document.getElementById('formFile');
         if (fileInput.files.length > 0) {
             document.getElementById('uploadProgress').classList.remove('d-none');
-            document.getElementById('uploadButton').disabled = true;
+            uploadButton.disabled = true;
             
             // Simulate upload progress
             let progress = 0;
@@ -117,6 +271,8 @@ upload_file("localhost", 8000, "example.txt")
                     clearInterval(interval);
                 }
             }, 200);
+        } else {
+            e.preventDefault();
         }
     });
 </script>

@@ -2,196 +2,144 @@
 
 {% block head %}
 <title>Home - File Transfer App</title>
+<style>
+    .hero-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, rgba(32, 32, 42, 0.9) 0%, rgba(56, 56, 86, 0.9) 100%);
+        border-radius: 8px;
+        margin-bottom: 40px;
+    }
+    .action-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .btn-action {
+        font-weight: 500;
+        padding: 10px 25px;
+        font-size: 1.1rem;
+    }
+    .feature-list {
+        padding-left: 0;
+        list-style: none;
+    }
+    .feature-list li {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 text-center mb-4">
-        <h1><i class="fas fa-exchange-alt me-3"></i>File Transfer Application</h1>
-        <p class="lead">A TCP socket-based file transfer solution using Twisted Python</p>
+<!-- Hero Section -->
+<div class="hero-section text-center text-white">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-exchange-alt me-3"></i>File Transfer Application
+        </h1>
+        <p class="lead mb-4">A secure and efficient platform for transferring and managing files</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-upload me-2"></i>Upload Files
+            </a>
+            <a href="{{ url_for('file_manager_page') }}" class="btn btn-info btn-lg">
+                <i class="fas fa-folder-open me-2"></i>Manage Files
+            </a>
+        </div>
     </div>
 </div>
 
+<!-- Main Content -->
 <div class="row">
     <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-primary text-white">
-                <h4><i class="fas fa-upload me-2"></i>File Upload</h4>
-            </div>
-            <div class="card-body">
-                <p>Upload your files to the server through a simple web interface or using TCP sockets.</p>
-                <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Multiple file formats supported</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Fast and secure transfer</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Web and TCP socket interfaces</li>
-                </ul>
-                <div class="d-grid">
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">
-                        <i class="fas fa-upload me-2"></i>Go to Upload
-                    </a>
+        <div class="card action-card">
+            <div class="card-body text-center p-5">
+                <div class="card-icon text-primary">
+                    <i class="fas fa-upload"></i>
                 </div>
+                <h3 class="card-title mb-3">File Upload</h3>
+                <p class="card-text mb-4">
+                    Upload your files securely through our intuitive web interface. 
+                    Multiple file formats supported with fast and reliable transfer.
+                </p>
+                <ul class="feature-list mb-4">
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Multiple file formats supported</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Fast and secure transfer</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Simple uploading process</li>
+                </ul>
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-action w-100">
+                    <i class="fas fa-upload me-2"></i>Upload Now
+                </a>
             </div>
         </div>
     </div>
     
     <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-info text-white">
-                <h4><i class="fas fa-folder-open me-2"></i>File Manager</h4>
-            </div>
-            <div class="card-body">
-                <p>Manage all your uploaded files in one place with powerful features.</p>
-                <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>View file details</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Download files</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Delete unwanted files</li>
-                </ul>
-                <div class="d-grid">
-                    <a href="{{ url_for('file_manager_page') }}" class="btn btn-info">
-                        <i class="fas fa-folder-open me-2"></i>Go to File Manager
-                    </a>
+        <div class="card action-card">
+            <div class="card-body text-center p-5">
+                <div class="card-icon text-info">
+                    <i class="fas fa-folder-open"></i>
                 </div>
+                <h3 class="card-title mb-3">File Manager</h3>
+                <p class="card-text mb-4">
+                    Manage all your uploaded files in one centralized location. 
+                    Easily view, download, or delete files as needed.
+                </p>
+                <ul class="feature-list mb-4">
+                    <li><i class="fas fa-check-circle text-success me-2"></i>View complete file details</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Download files instantly</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Efficient file organization</li>
+                </ul>
+                <a href="{{ url_for('file_manager_page') }}" class="btn btn-info btn-action w-100">
+                    <i class="fas fa-folder-open me-2"></i>Manage Files
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-2">
+<!-- Server Information -->
+<div class="row mt-3">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h4><i class="fas fa-code me-2"></i>TCP Socket Client Example</h4>
-            </div>
+        <div class="card bg-dark">
             <div class="card-body">
-                <p>Connect to our server using this Python client example:</p>
-                <div class="bg-dark p-3 rounded">
-<pre class="text-white mb-0"><code>import socket
-import os
-
-class FileTransferClient:
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        
-    def connect(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.host, self.port))
-        response = self.socket.recv(1024).decode()
-        print(f"Server: {response}")
-        return response
-        
-    def upload_file(self, filepath):
-        try:
-            # Connect to server
-            self.connect()
-            
-            # Get file info
-            filename = os.path.basename(filepath)
-            filesize = os.path.getsize(filepath)
-            
-            # Send upload command
-            self.socket.sendall(f"UPLOAD {filename} {filesize}\n".encode())
-            
-            # Wait for server to be ready
-            response = self.socket.recv(1024).decode()
-            if response.strip() == "READY":
-                # Send file data
-                with open(filepath, 'rb') as f:
-                    data = f.read()
-                    self.socket.sendall(data)
-                
-                # Get completion message
-                response = self.socket.recv(1024).decode()
-                print(f"Server: {response}")
-                return True
-            else:
-                print(f"Error: {response}")
-                return False
-                
-        finally:
-            self.socket.close()
-    
-    def download_file(self, filename, save_path):
-        try:
-            # Connect to server
-            self.connect()
-            
-            # Send download command
-            self.socket.sendall(f"DOWNLOAD {filename}\n".encode())
-            
-            # Get file info
-            response = self.socket.recv(1024).decode()
-            if response.startswith("FILEINFO"):
-                parts = response.split(' ', 2)
-                if len(parts) == 3:
-                    remote_filename = parts[1]
-                    filesize = int(parts[2])
-                    
-                    # Receive file data
-                    data = b''
-                    bytes_received = 0
-                    
-                    while bytes_received < filesize:
-                        chunk = self.socket.recv(min(4096, filesize - bytes_received))
-                        if not chunk:
-                            break
-                        data += chunk
-                        bytes_received += len(chunk)
-                    
-                    # Save file
-                    with open(save_path, 'wb') as f:
-                        f.write(data)
-                    
-                    print(f"Downloaded {filename} successfully.")
-                    return True
-            else:
-                print(f"Error: {response}")
-                return False
-                
-        finally:
-            self.socket.close()
-    
-    def list_files(self):
-        try:
-            # Connect to server
-            self.connect()
-            
-            # Send list command
-            self.socket.sendall(b"LIST\n")
-            
-            # Get file list
-            response = self.socket.recv(4096).decode()
-            if response.startswith("FILELIST"):
-                import json
-                files_json = response[9:]  # Remove "FILELIST " prefix
-                files = json.loads(files_json)
-                return files
-            else:
-                print(f"Error: {response}")
-                return []
-                
-        finally:
-            self.socket.close()
-
-# Example usage
-if __name__ == "__main__":
-    client = FileTransferClient("localhost", 8000)
-    
-    # Upload a file
-    # client.upload_file("example.txt")
-    
-    # Download a file
-    # client.download_file("example.txt", "downloaded_example.txt")
-    
-    # List files
-    # files = client.list_files()
-    # for file in files:
-    #     print(f"{file['filename']} - {file['size_formatted']}")
-</code></pre>
+                <h4 class="text-white mb-3"><i class="fas fa-server me-2"></i>TCP Connection Information</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-primary text-white p-3 rounded me-3">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-light mb-1">Server Host</h5>
+                                <p class="text-light mb-0"><code>{{ request.host.split(':')[0] }}</code></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-info text-white p-3 rounded me-3">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-light mb-1">Server Port</h5>
+                                <p class="text-light mb-0"><code>8000</code></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="alert alert-info mt-3">
+                <div class="alert alert-info mt-3 mb-0">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Server Information:</strong> Host: <code>{{ request.host.split(':')[0] }}</code>, Port: <code>8000</code>
+                    <strong>Note:</strong> TCP socket connections can be used for programmatic file transfers
                 </div>
             </div>
         </div>
