@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Home - File Transfer App</title>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-4">
+        <h1><i class="fas fa-exchange-alt me-3"></i>File Transfer Application</h1>
+        <p class="lead">A TCP socket-based file transfer solution using Twisted Python</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-upload me-2"></i>File Upload</h4>
+            </div>
+            <div class="card-body">
+                <p>Upload your files to the server through a simple web interface or using TCP sockets.</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Multiple file formats supported</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Fast and secure transfer</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Web and TCP socket interfaces</li>
+                </ul>
+                <div class="d-grid">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Go to Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-folder-open me-2"></i>File Manager</h4>
+            </div>
+            <div class="card-body">
+                <p>Manage all your uploaded files in one place with powerful features.</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>View file details</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Download files</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Delete unwanted files</li>
+                </ul>
+                <div class="d-grid">
+                    <a href="{{ url_for('file_manager_page') }}" class="btn btn-info">
+                        <i class="fas fa-folder-open me-2"></i>Go to File Manager
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-code me-2"></i>TCP Socket Client Example</h4>
+            </div>
+            <div class="card-body">
+                <p>Connect to our server using this Python client example:</p>
+                <div class="bg-dark p-3 rounded">
+<pre class="text-white mb-0"><code>import socket
+import os
+
+class FileTransferClient:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        
+    def connect(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.host, self.port))
+        response = self.socket.recv(1024).decode()
+        print(f"Server: {response}")
+        return response
+        
+    def upload_file(self, filepath):
+        try:
+            # Connect to server
+            self.connect()
+            
+            # Get file info
+            filename = os.path.basename(filepath)
+            filesize = os.path.getsize(filepath)
+            
+            # Send upload command
+            self.socket.sendall(f"UPLOAD {filename} {filesize}\n".encode())
+            
+            # Wait for server to be ready
+            response = self.socket.recv(1024).decode()
+            if response.strip() == "READY":
+                # Send file data
+                with open(filepath, 'rb') as f:
+                    data = f.read()
+                    self.socket.sendall(data)
+                
+                # Get completion message
+                response = self.socket.recv(1024).decode()
+                print(f"Server: {response}")
+                return True
+            else:
+                print(f"Error: {response}")
+                return False
+                
+        finally:
+            self.socket.close()
+    
+    def download_file(self, filename, save_path):
+        try:
+            # Connect to server
+            self.connect()
+            
+            # Send download command
+            self.socket.sendall(f"DOWNLOAD {filename}\n".encode())
+            
+            # Get file info
+            response = self.socket.recv(1024).decode()
+            if response.startswith("FILEINFO"):
+                parts = response.split(' ', 2)
+                if len(parts) == 3:
+                    remote_filename = parts[1]
+                    filesize = int(parts[2])
+                    
+                    # Receive file data
+                    data = b''
+                    bytes_received = 0
+                    
+                    while bytes_received < filesize:
+                        chunk = self.socket.recv(min(4096, filesize - bytes_received))
+                        if not chunk:
+                            break
+                        data += chunk
+                        bytes_received += len(chunk)
+                    
+                    # Save file
+                    with open(save_path, 'wb') as f:
+                        f.write(data)
+                    
+                    print(f"Downloaded {filename} successfully.")
+                    return True
+            else:
+                print(f"Error: {response}")
+                return False
+                
+        finally:
+            self.socket.close()
+    
+    def list_files(self):
+        try:
+            # Connect to server
+            self.connect()
+            
+            # Send list command
+            self.socket.sendall(b"LIST\n")
+            
+            # Get file list
+            response = self.socket.recv(4096).decode()
+            if response.startswith("FILELIST"):
+                import json
+                files_json = response[9:]  # Remove "FILELIST " prefix
+                files = json.loads(files_json)
+                return files
+            else:
+                print(f"Error: {response}")
+                return []
+                
+        finally:
+            self.socket.close()
+
+# Example usage
+if __name__ == "__main__":
+    client = FileTransferClient("localhost", 8000)
+    
+    # Upload a file
+    # client.upload_file("example.txt")
+    
+    # Download a file
+    # client.download_file("example.txt", "downloaded_example.txt")
+    
+    # List files
+    # files = client.list_files()
+    # for file in files:
+    #     print(f"{file['filename']} - {file['size_formatted']}")
+</code></pre>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Server Information:</strong> Host: <code>{{ request.host.split(':')[0] }}</code>, Port: <code>8000</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

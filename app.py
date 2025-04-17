@@ -23,8 +23,13 @@ twisted_thread.daemon = True
 twisted_thread.start()
 
 @app.route('/')
+def home():
+    """Render the home page"""
+    return render_template('home.html')
+
+@app.route('/upload')
 def index():
-    """Render the home page with file upload form"""
+    """Render the upload page with file upload form"""
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
@@ -43,7 +48,8 @@ def upload_file():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        file_manager.register_file_upload(filename, len(file.read()))
+        file_size = os.path.getsize(file_path)  # Get the size from the saved file
+        file_manager.register_file_upload(filename, file_size)
         flash(f'File {filename} uploaded successfully')
         return redirect(url_for('file_manager_page'))
     
@@ -54,26 +60,11 @@ def file_manager_page():
     """Render the file manager page"""
     return render_template('file_manager.html')
 
-@app.route('/network_stats')
-def network_stats_page():
-    """Render the network statistics page"""
-    return render_template('network_stats.html')
-
 @app.route('/api/files', methods=['GET'])
 def get_files():
     """API endpoint to get list of files"""
     files = file_manager.list_files()
     return jsonify(files)
-
-@app.route('/api/network_stats', methods=['GET'])
-def get_network_stats():
-    """API endpoint to get network statistics"""
-    with open('network_stats.json', 'r') as f:
-        try:
-            stats = json.load(f)
-        except json.JSONDecodeError:
-            stats = {}
-    return jsonify(stats)
 
 @app.route('/download/<filename>', methods=['GET'])
 def download_file(filename):
