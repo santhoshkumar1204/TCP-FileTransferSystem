@@ -1,0 +1,69 @@
+/* Custom CSS styles for the File Transfer Application */
+
+/* General styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Table styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* File manager styles */
+.file-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+/* Network stats styles */
+.display-6 {
+    font-size: 2rem;
+}
+
+/* Upload form styles */
+#uploadProgress {
+    height: 25px;
+}
+
+/* Code blocks */
+pre {
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+code {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.25rem;
+    }
+}

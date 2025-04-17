@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Upload Files - File Transfer App</title>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-upload me-2"></i>Upload Files</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="card-title">Web Upload</h5>
+                        <p class="card-text">Upload files directly through your web browser:</p>
+                        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                            <div class="mb-3">
+                                <label for="formFile" class="form-label">Choose a file</label>
+                                <input class="form-control" type="file" id="formFile" name="file">
+                            </div>
+                            <div class="progress mb-3 d-none" id="uploadProgress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" id="uploadButton">
+                                    <i class="fas fa-upload me-2"></i>Upload File
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 class="card-title">TCP Socket Upload</h5>
+                        <p class="card-text">You can also upload files using a TCP client by connecting to the server:</p>
+                        <div class="card bg-dark">
+                            <div class="card-body">
+                                <h6 class="text-white">Server Information:</h6>
+                                <p class="text-light mb-2"><strong>Host:</strong> <code id="serverHost">{{ request.host.split(':')[0] }}</code></p>
+                                <p class="text-light mb-2"><strong>Port:</strong> <code>8000</code></p>
+                                <p class="text-light">Use the following command format to upload a file:</p>
+                                <pre class="bg-secondary p-2 text-white"><code>UPLOAD filename filesize</code></pre>
+                                <button class="btn btn-sm btn-outline-info mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#clientExample">
+                                    <i class="fas fa-code me-1"></i>Example Python Client Code
+                                </button>
+                                <div class="collapse mt-2" id="clientExample">
+                                    <div class="card card-body bg-secondary">
+<pre><code class="text-white">import socket
+import os
+
+def upload_file(host, port, filepath):
+    # Create socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    
+    # Read welcome message
+    response = s.recv(1024).decode()
+    print(f"Server: {response}")
+    
+    # Get file info
+    filename = os.path.basename(filepath)
+    filesize = os.path.getsize(filepath)
+    
+    # Send upload command
+    s.sendall(f"UPLOAD {filename} {filesize}\n".encode())
+    
+    # Wait for server to be ready
+    response = s.recv(1024).decode()
+    if response.strip() == "READY":
+        # Send file data
+        with open(filepath, 'rb') as f:
+            data = f.read()
+            s.sendall(data)
+        
+        # Get completion message
+        response = s.recv(1024).decode()
+        print(f"Server: {response}")
+    else:
+        print(f"Error: {response}")
+    
+    s.close()
+
+# Example usage
+upload_file("localhost", 8000, "example.txt")
+</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        const fileInput = document.getElementById('formFile');
+        if (fileInput.files.length > 0) {
+            document.getElementById('uploadProgress').classList.remove('d-none');
+            document.getElementById('uploadButton').disabled = true;
+            
+            // Simulate upload progress
+            let progress = 0;
+            const progressBar = document.querySelector('.progress-bar');
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = `${Math.min(progress, 95)}%`;
+                if (progress >= 95) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+    });
+</script>
+{% endblock %}
