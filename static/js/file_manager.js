@@ -41,25 +41,25 @@ async function loadFiles() {
     let tableHtml = '';
     files.forEach(file => {
         tableHtml += `
-            <tr>
-                <td>
-                    <i class="fas fa-file me-2"></i>
-                    ${file.filename}
+            <tr class="file-item">
+                <td style="padding-left: 1.25rem;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file me-3 text-primary"></i>
+                        <span>${file.filename}</span>
+                    </div>
                 </td>
                 <td>${file.size_formatted}</td>
                 <td>${formatDate(file.upload_time)}</td>
                 <td>
-                    <span class="badge bg-info">${file.download_count}</span>
+                    <span class="badge bg-info rounded-pill">${file.download_count}</span>
                 </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <a href="/download/${file.filename}" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                        <button class="btn btn-outline-danger delete-btn" data-filename="${file.filename}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
+                <td class="text-end" style="padding-right: 1.25rem;">
+                    <a href="/download/${file.filename}" class="btn btn-sm btn-outline-primary action-btn" title="Download File">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger action-btn delete-btn" data-filename="${file.filename}" title="Delete File">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </td>
             </tr>
         `;
